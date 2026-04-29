@@ -2858,6 +2858,50 @@ do -- Player Tab local scope
 
 local movementGroup = Tabs.Player:AddLeftGroupbox("Movement", "move")
 
+movementGroup:AddToggle("SpeedHack", {
+    Text = "Speed Hack",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local char = LocalPlayer.Character
+            if char then
+                local humanoid = char:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    originalValues.walkSpeed = humanoid.WalkSpeed -- capture BEFORE hack applies
+                end
+            end
+            Library:Notify({ Title = "Speed Hack", Description = "Enabled (FE bypass active)", Time = 2 })
+        else
+            local char = LocalPlayer.Character
+            if char then
+                local humanoid = char:FindFirstChildOfClass("Humanoid")
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if humanoid then
+                    humanoid.WalkSpeed = originalValues.walkSpeed or 16
+                end
+                -- Also zero out the velocity so you don't keep sliding when you toggle off
+                if hrp then
+                    hrp.AssemblyLinearVelocity = Vector3.new(
+                        0,
+                        hrp.AssemblyLinearVelocity.Y,
+                        0
+                    )
+                end
+            end
+            Library:Notify({ Title = "Speed Hack", Description = "Speed restored to " .. (originalValues.walkSpeed or 16), Time = 2 })
+        end
+    end,
+})
+
+movementGroup:AddSlider("SpeedValue", {
+    Text = "Walk Speed",
+    Default = 50,
+    Min = 16,
+    Max = 200,
+    Rounding = 0,
+    Suffix = " studs/s",
+})
+
 movementGroup:AddToggle("InfJump", {
     Text = "Inf Jump",
     Default = false,
